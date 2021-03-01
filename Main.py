@@ -18,6 +18,22 @@ cur.execute("""
             ;""")
 conn.commit()
 
+
+def luhn_alg(num):
+    num_list = [int(digit) for digit in num]
+    sum = 0
+    for index,value in enumerate(num_list, start=1):
+        if index % 2 == 0:
+            sum += value
+        else:
+            if value * 2 > 9:
+                sum += value * 2 - 9
+            else:
+                sum += value * 2
+
+    return sum % 10 == 0
+
+
 # class Account:
 #     def __init__(self):
 #         print("Your card has been created")
@@ -81,13 +97,8 @@ while True:
         print()
         balance = 0
 
-        cur.execute("INSERT INTO card (\"pin\" , \"number\" ) VALUES (? ,?) ;", (pin, credit_number))
+        cur.execute('INSERT INTO card ("pin" , "number" ) VALUES (? ,?) ;', (pin, credit_number))
         conn.commit()
-
-        # cur.execute('SELECT * FROM card ;')
-        # print(cur.fetchall())
-        # new_account = Account()
-        # accounts.append(new_account)
 
     elif choice == 2:
         print("Enter your card number:")
@@ -95,29 +106,81 @@ while True:
         print("Enter your PIN:")
         pin_attempt = input('>')
         flag = False
-        #Check if the account is present in the card table
+        # Check if the account is present in the card table
         cur.execute("""SELECT *
                         FROM card
                         WHERE number=? AND pin=?""", (credit_attempt, pin_attempt))
         active_account = cur.fetchall()
-        if(active_account):
+        if (active_account):
             flag = True
             print("You have successfully logged in!")
             while True:
                 flag = True
                 print("1. Balance")
-                print("2. Log out")
-                print("0. Exit")
+                print('2. Add income')
+                print('3. Do transfer')
+                print('4. Close account')
+                print('5. Log out')
+                print('0. Exit')
+
                 print()
                 choice = int(input('>'))
+
+                # Op-1 Balance
                 if choice == 1:
-                    print("Balance: " + str(active_account[0][3]))
+                    cur.execute("""SELECT * FROM card WHERE number = ?   """, (str(active_account[0][2]),))
+                    balance = cur.fetchall()[0][3]
+                    print("Balance: " + str(balance))
+                # Op-2 Add Income
                 elif choice == 2:
+                    print('Enter income:')
+                    income = input('>')
+                    cur.execute("""UPDATE card SET balance = balance + ? WHERE number = ?;""", (income, str(active_account[0][2])))
+                    conn.commit()
+                    print('Income was added!')
+                # Op-3 Do Transfer
+                elif choice == 3:
+                    flag = False
+                    print('Enter card number:')
+                    trans_number = input('>')
+                    if luhn_alg(trans_number):
+                        cur.execute("""SELECT * From card WHERE number=?;""", (trans_number,))
+                        trans_account = cur.fetchall()
+                        if (trans_account):
+                            print('Enter how much money you want to transfer:')
+                            trans_amount = input('>')
+                            cur.execute("""SELECT * FROM card WHERE number = ?   """, (str(active_account[0][2]),))
+                            balance = cur.fetchall()[0][3]
+                            if (int(trans_amount) < int(balance)):
+                                cur.execute("""UPDATE card SET balance = balance - ? WHERE number = ? ;""",(trans_amount, active_account[0][2]))
+                                conn.commit()
+                                cur.execute("""UPDATE card SET balance = balance + ? WHERE number = ? ;""",(trans_amount, trans_account[0][2]))
+                                conn.commit()
+                                print('Success!')
+                            else:
+                                print('Not enough money!')
+                        else:
+                            print('Such a card does not exist.')
+                    else:
+                        print('Probably you made a mistake in the card number. Please try again!')
+                    print()
+                # Op-4 Close Account
+                elif choice == 4:
+                    cur.execute("""DELETE FROM card  WHERE number = ? ;""",( active_account[0][2],))
+                    conn.commit()
+                    print('The account has been closed!')
+                    break
+                # Op-5 Log Out
+                elif choice == 5:
                     print("You have successfully logged out!")
                     break
+                # Op-0 Quit
                 elif choice == 0:
                     print("Bye!")
                     quit()
+
+
+
         else:
             print("Wrong card number or PIN!")
             print()
