@@ -1,4 +1,11 @@
 # Banking_Managment_System_SQL_repo
+ ##UPDATE
+ 
+ Current version 1.0
+ Status: Finished (;
+
+ 
+ 
  
 the first version is not visible here
 this is not the finished version
