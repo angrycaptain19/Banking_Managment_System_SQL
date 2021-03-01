@@ -1,13 +1,10 @@
 # Banking_Managment_System_SQL_repo
+ ##UPDATE
  
-the first version is not visible here
-this is not the finished version
+ Current version 1.0
+ Status: Finished (;
 
-This program is just here to demonstrate my knowledge in SQL
+ 
+ 
+ 
 
-Current version: 0.6
-Status: unfinished
-
-To do list:
-*add transactions.
-*add exception.
