@@ -26,11 +26,7 @@ def luhn_alg(num):
         if index % 2 == 0:
             sum += value
         else:
-            if value * 2 > 9:
-                sum += value * 2 - 9
-            else:
-                sum += value * 2
-
+            sum += value * 2 - 9 if value > 9 / 2 else value * 2
     return sum % 10 == 0
 
 
@@ -81,14 +77,8 @@ while True:
             if index % 2 == 0:
                 sum_of_dig += value
             else:
-                if value * 2 > 9:
-                    sum_of_dig += value * 2 - 9
-                else:
-                    sum_of_dig += value * 2
-        if sum_of_dig % 10 == 0:
-            check_digit = 0
-        else:
-            check_digit = 10 - (sum_of_dig % 10)
+                sum_of_dig += value * 2 - 9 if value > 9 / 2 else value * 2
+        check_digit = 0 if sum_of_dig % 10 == 0 else 10 - (sum_of_dig % 10)
         credit_number = int(initial_number + str(check_digit))
         print(str(credit_number))
         pin = (str(randint(0, 9999)).zfill(4))
